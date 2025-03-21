@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
+import 'package:intl/intl.dart';
 
-class BackgroundImage extends StatelessWidget {
+class BackgroundImage extends StatefulWidget {
   final String imageUrl;
   final double height;
 
@@ -11,13 +13,46 @@ class BackgroundImage extends StatelessWidget {
   });
 
   @override
+  State<BackgroundImage> createState() => _BackgroundImageState();
+}
+
+class _BackgroundImageState extends State<BackgroundImage> {
+  late Timer _timer;
+  late DateTime _currentTime;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentTime = DateTime.now();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        _currentTime = DateTime.now();
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
+  String _formatTime() {
+    return DateFormat('hh:mm a').format(_currentTime).toLowerCase();
+  }
+
+  String _formatDate() {
+    return DateFormat('EEEE, d MMM, yyyy').format(_currentTime);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
-      height: height,
+      height: widget.height,
       width: double.infinity,
       decoration: BoxDecoration(
         image: DecorationImage(
-          image: AssetImage(imageUrl),
+          image: AssetImage(widget.imageUrl),
           fit: BoxFit.cover,
         ),
       ),
@@ -55,17 +90,17 @@ class BackgroundImage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      '11:20 am',
-                      style: TextStyle(
+                    Text(
+                      _formatTime(),
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 48,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const Text(
-                      'Friday, 3 Feb, 2025',
-                      style: TextStyle(
+                    Text(
+                      _formatDate(),
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,
                       ),
@@ -82,14 +117,14 @@ class BackgroundImage extends StatelessWidget {
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
+                    children: const [
+                      Icon(
                         Icons.translate,
                         color: Colors.white,
                         size: 24,
                       ),
-                      const SizedBox(width: 8),
-                      const Text(
+                      SizedBox(width: 8),
+                      Text(
                         'සිංහල',
                         style: TextStyle(
                           color: Colors.white,
