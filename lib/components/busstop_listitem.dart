@@ -102,7 +102,7 @@ class BusStopListItem extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                       child: Text(
-                        '${formattedTime.toLowerCase()}',
+                        formattedTime.toLowerCase(),
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,

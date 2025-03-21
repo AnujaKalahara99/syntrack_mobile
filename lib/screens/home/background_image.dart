@@ -115,9 +115,9 @@ class _BackgroundImageState extends State<BackgroundImage> {
                     color: Colors.blue.withOpacity(0.6),
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: Row(
+                  child: const Row(
                     mainAxisSize: MainAxisSize.min,
-                    children: const [
+                    children: [
                       Icon(
                         Icons.translate,
                         color: Colors.white,

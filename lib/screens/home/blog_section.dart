@@ -5,9 +5,9 @@ class BlogSection extends StatelessWidget {
   final List<BlogPost> blogs;
 
   const BlogSection({
-    Key? key,
+    super.key,
     required this.blogs,
-  }) : super(key: key);
+  });
 
   void _onBlogTap(BuildContext context, BlogPost blog) {
     // TODO: Navigate to blog detail screen
@@ -24,8 +24,8 @@ class BlogSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 20, bottom: 16),
+        const Padding(
+          padding: EdgeInsets.only(left: 20, bottom: 16),
           child: Text(
             'Latest Updates',
             style: TextStyle(
@@ -37,7 +37,7 @@ class BlogSection extends StatelessWidget {
         SizedBox(
           height: 220,
           child: ListView.builder(
-            padding: EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             scrollDirection: Axis.horizontal,
             itemCount: blogs.length,
             itemBuilder: (context, index) {
@@ -60,8 +60,8 @@ class BlogSection extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         ClipRRect(
-                          borderRadius:
-                              BorderRadius.vertical(top: Radius.circular(16)),
+                          borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(16)),
                           child: Image.asset(
                             blog.imageUrl,
                             height: 140,
@@ -76,7 +76,7 @@ class BlogSection extends StatelessWidget {
                             children: [
                               Text(
                                 blog.title,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w500,
                                 ),

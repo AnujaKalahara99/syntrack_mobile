@@ -35,7 +35,7 @@ class _MainLayoutState extends State<MainLayout> {
             BoxShadow(
               color: Colors.black.withOpacity(0.1),
               blurRadius: 8,
-              offset: Offset(0, -2),
+              offset: const Offset(0, -2),
             ),
           ],
         ),
@@ -45,13 +45,13 @@ class _MainLayoutState extends State<MainLayout> {
           type: BottomNavigationBarType.fixed,
           backgroundColor: Colors.white,
           elevation: 0,
-          selectedItemColor: Color(0xFF2196F3),
-          unselectedItemColor: Color(0xFF9E9E9E),
-          selectedLabelStyle: TextStyle(
+          selectedItemColor: const Color(0xFF2196F3),
+          unselectedItemColor: const Color(0xFF9E9E9E),
+          selectedLabelStyle: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
-          unselectedLabelStyle: TextStyle(
+          unselectedLabelStyle: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
           ),

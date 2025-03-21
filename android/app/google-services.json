@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "841823213387",
+    "project_id": "syntrack-52802",
+    "storage_bucket": "syntrack-52802.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:841823213387:android:61eafc000b949ed705face",
+        "android_client_info": {
+          "package_name": "com.example.syntrack"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAq2WTJzbLY3nO_cjqc54rK3BNsouW8Ypk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../near_me/near_me_screen.dart';
+import '../nearme/nearme_screen.dart';
 
 class Service {
   final String imageAsset;
@@ -16,13 +16,13 @@ class Service {
 }
 
 class ServiceMenu extends StatelessWidget {
-  const ServiceMenu({Key? key}) : super(key: key);
+  const ServiceMenu({super.key});
 
   List<Service> get _services => [
         Service(
           imageAsset: 'assets/images/nearme.png',
           label: 'Near me',
-          backgroundColor: Color(0xFFF5F5F5),
+          backgroundColor: const Color(0xFFF5F5F5),
           onTap: (context) => Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const NearMeScreen()),
@@ -31,7 +31,7 @@ class ServiceMenu extends StatelessWidget {
         Service(
           imageAsset: 'assets/images/directions.png',
           label: 'Directions',
-          backgroundColor: Color(0xFFF5F5F5),
+          backgroundColor: const Color(0xFFF5F5F5),
           onTap: (context) {
             // TODO: Navigate to directions screen
           },
@@ -39,7 +39,7 @@ class ServiceMenu extends StatelessWidget {
         Service(
           imageAsset: 'assets/images/routes.png',
           label: 'Routes',
-          backgroundColor: Color(0xFFF5F5F5),
+          backgroundColor: const Color(0xFFF5F5F5),
           onTap: (context) {
             // TODO: Navigate to routes screen
           },
@@ -47,7 +47,7 @@ class ServiceMenu extends StatelessWidget {
         Service(
           imageAsset: 'assets/images/etickets.png',
           label: 'E-Tickets',
-          backgroundColor: Color(0xFFF5F5F5),
+          backgroundColor: const Color(0xFFF5F5F5),
           onTap: (context) {
             // TODO: Navigate to e-tickets screen
           },
@@ -55,7 +55,7 @@ class ServiceMenu extends StatelessWidget {
         Service(
           imageAsset: 'assets/images/report.png',
           label: 'Report',
-          backgroundColor: Color(0xFFF5F5F5),
+          backgroundColor: const Color(0xFFF5F5F5),
           onTap: (context) {
             // TODO: Navigate to report screen
           },
@@ -63,7 +63,7 @@ class ServiceMenu extends StatelessWidget {
         Service(
           imageAsset: 'assets/images/emergency.png',
           label: 'Emergency',
-          backgroundColor: Color(0xFFF5F5F5),
+          backgroundColor: const Color(0xFFF5F5F5),
           onTap: (context) {
             // TODO: Navigate to emergency screen
           },
@@ -98,12 +98,12 @@ class NavigationButton extends StatelessWidget {
   final VoidCallback onTap;
 
   const NavigationButton({
-    Key? key,
+    super.key,
     required this.imageAsset,
     required this.label,
     required this.backgroundColor,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

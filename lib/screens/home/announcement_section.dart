@@ -5,17 +5,17 @@ class AnnouncementSection extends StatelessWidget {
   final List<Announcement> announcements;
 
   const AnnouncementSection({
-    Key? key,
+    super.key,
     required this.announcements,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 20, bottom: 16),
+        const Padding(
+          padding: EdgeInsets.only(left: 20, bottom: 16),
           child: Text(
             'Announcements',
             style: TextStyle(
@@ -27,7 +27,7 @@ class AnnouncementSection extends StatelessWidget {
         SizedBox(
           height: 120,
           child: ListView.builder(
-            padding: EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             scrollDirection: Axis.horizontal,
             itemCount: announcements.length,
             itemBuilder: (context, index) {
@@ -50,14 +50,14 @@ class AnnouncementSection extends StatelessWidget {
                   // ],
                 ),
                 child: Padding(
-                  padding: EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16),
                   child: Row(
                     children: [
                       Expanded(
                         flex: 7,
                         child: Text(
                           announcement.message,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,

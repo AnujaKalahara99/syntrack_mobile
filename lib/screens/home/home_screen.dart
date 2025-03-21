@@ -65,7 +65,7 @@ class HomeScreen extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 0, vertical: 16),
                   child: Column(
                     children: [
-                      HistoryListItem(
+                      const HistoryListItem(
                         title: 'Kokis Kade',
                         subtitle: 'Ganemulla',
                       ),
@@ -86,9 +86,9 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 20),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: const Text(
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          child: Text(
             'Nearest Bus Stops',
             style: TextStyle(
               fontSize: 20,
@@ -110,9 +110,9 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 20),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: const Text(
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          child: Text(
             'Services',
             style: TextStyle(
               fontSize: 20,
