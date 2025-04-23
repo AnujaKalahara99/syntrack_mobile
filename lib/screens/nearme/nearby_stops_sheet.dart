@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import '../../models/bus_stop_modal.dart';
+import '../../data/bus_stop_data.dart';
 
 class NearbyStopsSheet extends StatefulWidget {
-  const NearbyStopsSheet({super.key});
+  final BusStop? selectedBusStop;
+  const NearbyStopsSheet({super.key, this.selectedBusStop});
 
   @override
   State<NearbyStopsSheet> createState() => _NearbyStopsSheetState();
@@ -10,11 +13,49 @@ class NearbyStopsSheet extends StatefulWidget {
 class _NearbyStopsSheetState extends State<NearbyStopsSheet> {
   final DraggableScrollableController _controller =
       DraggableScrollableController();
+  late List<BusStop> _busStops;
+  late BusStop _displayedBusStop;
+  final Set<String> _selectedRoutes = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _busStops = BusStopData.getNearestBusStops();
+    _displayedBusStop = widget.selectedBusStop ?? _busStops[0];
+    _selectedRoutes.clear();
+    // _selectedRoutes.addAll(_displayedBusStop.routes);
+  }
+
+  @override
+  void didUpdateWidget(NearbyStopsSheet oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.selectedBusStop != oldWidget.selectedBusStop &&
+        widget.selectedBusStop != null) {
+      setState(() {
+        _displayedBusStop = widget.selectedBusStop!;
+        _selectedRoutes.clear();
+        // _selectedRoutes.addAll(_displayedBusStop.routes);
+      });
+    }
+  }
+
+  void _toggleRoute(String route) {
+    setState(() {
+      if (_selectedRoutes.contains(route)) {
+        _selectedRoutes.remove(route);
+        // if (_selectedRoutes.isEmpty && _displayedBusStop.routes.isNotEmpty) {
+        //   _selectedRoutes.add(_displayedBusStop.routes.first);
+        // }
+      } else {
+        _selectedRoutes.add(route);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
-      initialChildSize: 0.3,
+      initialChildSize: 0.2,
       minChildSize: 0.2,
       maxChildSize: 0.8,
       controller: _controller,
@@ -22,9 +63,7 @@ class _NearbyStopsSheetState extends State<NearbyStopsSheet> {
         return Container(
           decoration: const BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.vertical(
-              top: Radius.circular(20),
-            ),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
             boxShadow: [
               BoxShadow(
                 color: Color(0x1A000000),
@@ -35,7 +74,6 @@ class _NearbyStopsSheetState extends State<NearbyStopsSheet> {
           ),
           child: Column(
             children: [
-              // Drag handle
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 12),
                 width: 40,
@@ -46,142 +84,155 @@ class _NearbyStopsSheetState extends State<NearbyStopsSheet> {
                 ),
               ),
               Expanded(
-                child: CustomScrollView(
+                child: ListView(
                   controller: scrollController,
-                  slivers: [
-                    // Header
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'Nearby Bus Stops',
+                  padding: const EdgeInsets.only(left: 16, right: 16, top: 8),
+                  children: [
+                    Text(
+                      _displayedBusStop.name,
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: _displayedBusStop.routes.map((route) {
+                        final isSelected = _selectedRoutes.contains(route);
+                        return GestureDetector(
+                          onTap: () => _toggleRoute(route),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? Colors.blue[700]
+                                  : Colors.grey[200],
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Text(
+                              route,
                               style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
+                                color:
+                                    isSelected ? Colors.white : Colors.black87,
+                                fontWeight: isSelected
+                                    ? FontWeight.bold
+                                    : FontWeight.w500,
                               ),
                             ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 24),
+                    ListView.separated(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: 2,
+                      separatorBuilder: (context, index) =>
+                          const Divider(height: 32),
+                      itemBuilder: (context, index) {
+                        return Row(
+                          children: [
                             Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
-                              ),
+                              width: 48,
+                              height: 48,
                               decoration: BoxDecoration(
-                                color: Colors.blue[50],
-                                borderRadius: BorderRadius.circular(20),
+                                color: Colors.green[50],
+                                borderRadius: BorderRadius.circular(24),
                               ),
-                              child: Row(
+                              child: Icon(
+                                Icons.directions_bus,
+                                color: Colors.green[700],
+                                size: 24,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Icon(
-                                    Icons.location_on,
-                                    size: 16,
-                                    color: Colors.blue[700],
+                                  Row(
+                                    children: [
+                                      const Text(
+                                        '255',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        index == 0
+                                            ? 'Galkissa → Kottawa'
+                                            : 'Kottawa → Galkissa',
+                                        style: TextStyle(
+                                          color: Colors.grey[600],
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    'Within 1km',
-                                    style: TextStyle(
-                                      color: Colors.blue[700],
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                    ),
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        'Next',
+                                        style: TextStyle(
+                                          color: Colors.grey[600],
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        index == 0
+                                            ? 'University of Moratuwa'
+                                            : 'Piliyandala',
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        'Stop',
+                                        style: TextStyle(
+                                          color: Colors.grey[600],
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        'University',
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        'ETA ${index == 0 ? '11:21' : '11:39'} am',
+                                        style: TextStyle(
+                                          color: Colors.grey[600],
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
                             ),
                           ],
-                        ),
-                      ),
-                    ),
-                    // Bus stops list
-                    SliverPadding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      sliver: SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                            return Container(
-                              margin: const EdgeInsets.only(bottom: 12),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(12),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.05),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: ListTile(
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 8,
-                                ),
-                                leading: Container(
-                                  width: 40,
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    color: Colors.blue[50],
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Icon(
-                                    Icons.directions_bus,
-                                    color: Colors.blue[700],
-                                  ),
-                                ),
-                                title: Text(
-                                  'Bus Stop ${index + 1}',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                subtitle: Text(
-                                  '${(index + 1) * 100}m away',
-                                  style: TextStyle(
-                                    color: Colors.grey[600],
-                                    fontSize: 12,
-                                  ),
-                                ),
-                                trailing: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 4,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.green[50],
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Text(
-                                        'Bus ${100 + index}',
-                                        style: TextStyle(
-                                          color: Colors.green[700],
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      '2 mins',
-                                      style: TextStyle(
-                                        color: Colors.grey[600],
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                          childCount: 10,
-                        ),
-                      ),
+                        );
+                      },
                     ),
                   ],
                 ),
