@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'dart:async';
+import 'dart:math';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'nearby_stops_sheet.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../utils/map_style.dart';
@@ -25,6 +28,7 @@ class _NearMeScreenState extends State<NearMeScreen> {
 
   final Set<Marker> _busMarkers = {};
   final Set<Marker> _busStopMarkers = {};
+  final Set<Polyline> _routePolylines = {};
   BitmapDescriptor? _busIcon;
   BitmapDescriptor? _busStopIcon;
 
@@ -64,7 +68,6 @@ class _NearMeScreenState extends State<NearMeScreen> {
   Future<void> _initializeMarkers() async {
     await _loadIcons();
     _setupBusStopMarkers();
-    print("##_busStopMarkers: ${_busStopMarkers}");
     _setupBusLocationListener();
   }
 
@@ -74,7 +77,7 @@ class _NearMeScreenState extends State<NearMeScreen> {
   }
 
   void _setupBusStopMarkers() {
-    final busStops = BusStopData.getNearestBusStops();
+    final busStops = BusStopData.getAllBusStops();
     setState(() {
       _busStopMarkers.clear();
       for (var busStop in busStops) {
@@ -98,7 +101,6 @@ class _NearMeScreenState extends State<NearMeScreen> {
   void _setupBusLocationListener() {
     _busLocationSubscription =
         _database.child('buses').onValue.listen((DatabaseEvent event) {
-      print("##event.snapshot.value: ${event.snapshot.value}");
       if (event.snapshot.value != null) {
         final Map<dynamic, dynamic> buses =
             event.snapshot.value as Map<dynamic, dynamic>;
@@ -156,6 +158,111 @@ class _NearMeScreenState extends State<NearMeScreen> {
     return markers;
   }
 
+  Future<List<LatLng>> _getDirections(List<LatLng> waypoints) async {
+    if (waypoints.length < 2) return waypoints;
+
+    final List<LatLng> polylineCoordinates = [];
+
+    // Get directions between consecutive waypoints
+    for (int i = 0; i < waypoints.length - 1; i++) {
+      final origin = waypoints[i];
+      final destination = waypoints[i + 1];
+
+      final String baseUrl =
+          'https://maps.googleapis.com/maps/api/directions/json';
+      final String apiKey =
+          'AIzaSyBEGJuAAI_iCpkbxUedtsoMxorRpQjfrrw'; // Your API key from AndroidManifest.xml
+
+      final response = await http.get(
+          Uri.parse('$baseUrl?origin=${origin.latitude},${origin.longitude}'
+              '&destination=${destination.latitude},${destination.longitude}'
+              '&mode=driving'
+              '&key=$apiKey'));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['status'] == 'OK') {
+          final points = data['routes'][0]['overview_polyline']['points'];
+          polylineCoordinates.addAll(_decodePolyline(points));
+        }
+      }
+    }
+
+    return polylineCoordinates;
+  }
+
+  List<LatLng> _decodePolyline(String encoded) {
+    List<LatLng> poly = [];
+    int index = 0, len = encoded.length;
+    int lat = 0, lng = 0;
+
+    while (index < len) {
+      int b, shift = 0, result = 0;
+      do {
+        b = encoded.codeUnitAt(index++) - 63;
+        result |= (b & 0x1f) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+      int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+      lat += dlat;
+
+      shift = 0;
+      result = 0;
+      do {
+        b = encoded.codeUnitAt(index++) - 63;
+        result |= (b & 0x1f) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+      int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+      lng += dlng;
+
+      double latitude = lat / 1E5;
+      double longitude = lng / 1E5;
+      poly.add(LatLng(latitude, longitude));
+    }
+
+    return poly;
+  }
+
+  void _handleRouteSelected(String route) async {
+    setState(() {
+      _routePolylines.clear();
+    });
+
+    final path = BusStopData.getRoutePath(route);
+    if (path.isNotEmpty) {
+      final roadAlignedPath = await _getDirections(path);
+
+      setState(() {
+        _routePolylines.add(
+          Polyline(
+            polylineId: PolylineId(route),
+            points: roadAlignedPath,
+            color: Colors.blue,
+            width: 5,
+          ),
+        );
+
+        // Fit the map to show the entire route
+        _mapController.animateCamera(
+          CameraUpdate.newLatLngBounds(
+            LatLngBounds(
+              southwest: LatLng(
+                roadAlignedPath.map((p) => p.latitude).reduce(min),
+                roadAlignedPath.map((p) => p.longitude).reduce(min),
+              ),
+              northeast: LatLng(
+                roadAlignedPath.map((p) => p.latitude).reduce(max),
+                roadAlignedPath.map((p) => p.longitude).reduce(max),
+              ),
+            ),
+            50.0, // padding
+          ),
+        );
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -178,6 +285,7 @@ class _NearMeScreenState extends State<NearMeScreen> {
               zoom: 15.0,
             ),
             markers: _visibleMarkers,
+            polylines: _routePolylines,
             myLocationEnabled: _locationPermissionGranted,
             myLocationButtonEnabled: true,
             mapType: MapType.normal,
@@ -207,7 +315,10 @@ class _NearMeScreenState extends State<NearMeScreen> {
               ],
             ),
           ),
-          NearbyStopsSheet(selectedBusStop: _selectedBusStop),
+          NearbyStopsSheet(
+            selectedBusStop: _selectedBusStop,
+            onRouteSelected: _handleRouteSelected,
+          ),
         ],
       ),
     );

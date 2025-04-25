@@ -4,7 +4,12 @@ import '../../data/bus_stop_data.dart';
 
 class NearbyStopsSheet extends StatefulWidget {
   final BusStop? selectedBusStop;
-  const NearbyStopsSheet({super.key, this.selectedBusStop});
+  final Function(String route)? onRouteSelected;
+  const NearbyStopsSheet({
+    super.key,
+    this.selectedBusStop,
+    this.onRouteSelected,
+  });
 
   @override
   State<NearbyStopsSheet> createState() => _NearbyStopsSheetState();
@@ -20,7 +25,7 @@ class _NearbyStopsSheetState extends State<NearbyStopsSheet> {
   @override
   void initState() {
     super.initState();
-    _busStops = BusStopData.getNearestBusStops();
+    _busStops = BusStopData.getAllBusStops();
     _displayedBusStop = widget.selectedBusStop ?? _busStops[0];
     _selectedRoutes.clear();
     // _selectedRoutes.addAll(_displayedBusStop.routes);
@@ -43,11 +48,9 @@ class _NearbyStopsSheetState extends State<NearbyStopsSheet> {
     setState(() {
       if (_selectedRoutes.contains(route)) {
         _selectedRoutes.remove(route);
-        // if (_selectedRoutes.isEmpty && _displayedBusStop.routes.isNotEmpty) {
-        //   _selectedRoutes.add(_displayedBusStop.routes.first);
-        // }
       } else {
         _selectedRoutes.add(route);
+        widget.onRouteSelected?.call(route);
       }
     });
   }
